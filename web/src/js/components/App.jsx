@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { geolocated, geoPropTypes } from 'react-geolocated';
-// import axios from 'axios';
+import { connect } from 'react-redux';
 import jsonp from 'jsonp';
+import * as actions from '../actions';
 
 import Map from './Map';
 import ShopList from './ShopList';
@@ -16,6 +16,8 @@ class App extends Component {
     this.state = {
       shops: [],
     };
+  componentWillMount() {
+    this.props.getGeoLocation();
   }
 
   getShopList() {
@@ -36,7 +38,7 @@ class App extends Component {
   }
 
   render() {
-    if (!this.props.coords) {
+    if (!this.props.geolocation.coords.latitude) {
       return <div>Loading...</div>;
     } else if (this.state.shops.length === 0) {
       this.getShopList();
@@ -54,13 +56,14 @@ class App extends Component {
         },
       };
     });
+    const { latitude, longitude } = this.props.geolocation.coords;
     markers.push(
       {
         name: 'current',
         label: '現在地',
         position: {
-          lat: this.props.coords.latitude,
-          lng: this.props.coords.longitude,
+          lat: latitude,
+          lng: longitude,
         },
       },
     );
@@ -68,8 +71,8 @@ class App extends Component {
     return (
       <div>
         <Map
-          longitude={this.props.coords.longitude}
-          latitude={this.props.coords.latitude}
+          longitude={longitude}
+          latitude={latitude}
           markers={markers}
         />
         <ShopList shops={this.state.shops} />
@@ -78,11 +81,22 @@ class App extends Component {
   }
 }
 
-App.propTypes = { ...App.propTypes, ...geoPropTypes };
+const mapStateToProps = (state) => {
+  return {
+    geolocation: state.geolocation,
+    shops: state.shops,
+  };
+};
 
-export default geolocated({
-  positionOptions: {
-    enableHighAccuracy: false,
-  },
-  userDecisionTimeout: 5000,
-})(App);
+
+App.propTypes = {
+  ...App.propTypes,
+  geolocation: React.PropTypes.shape({
+    coords: React.PropTypes.shape({
+      longitude: React.PropTypes.number,
+      latitude: React.PropTypes.number,
+    }),
+  }),
+};
+
+export default connect(mapStateToProps, actions)(App);
