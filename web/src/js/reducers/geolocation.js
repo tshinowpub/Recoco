@@ -7,6 +7,7 @@ const INITIAL_STATE = {
     latitude: null,
     longitude: null,
   },
+  inProgress: true,
 };
 
 export default function (state = INITIAL_STATE, action) {

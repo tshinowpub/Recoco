@@ -18,3 +18,4 @@ composer.phar
 /web/bundles/
 web/node_modules
 bundle.js
+web/js
