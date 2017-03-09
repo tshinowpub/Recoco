@@ -8,7 +8,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 use Recoco\Domain\Gnavi\Entity\Rest;
-use Recoco\Domain\Gnavi\QueryBuilder\RestQueryBuilder;
+
+use CrEOF\Spatial\PHP\Types\Geometry\Point;
+
+use GuzzleHttp\Client;
 
 class GnaviImportCommand extends ContainerAwareCommand
 {
@@ -21,18 +24,55 @@ class GnaviImportCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $queryBuilder = new RestQueryBuilder();
-        $queryBuilder->setQueryFromCriteria(
-           array(
-               'input_coordinates_mode' => 1,
-               'coordinates_mode' => 1,
-               'latitude' => 34.6952161,
-               'longitude' => 135.5015264,
-               'range' => 3
-           )
-        );
+        $client = new Client();
+        $response = $client->request('GET', self::BASE_URL, [
+            'verify' => false,
+            'query' => [
+                'input_coordinates_mode' => 1,
+                'coordinates_mode' => 1,
+                'latitude' => 34.6952161,
+                'longitude' => 135.5015264,
+                'range' => 3,
+                'keyid' => '6f78403ab1320b9db172ebac0d607e0f',
+                'format' => 'json',
+            ]
+        ]);
+
+        $apiRests = [];
+        if($response->getStatusCode() == '200') {
+
+            $json = $response->getBody();
+
+            $apiData = json_decode($json);
+            if(!is_null($apiData)) {
+                $apiRests = $apiData->rest;
+            }
+        }
+
+        $em = $this->getContainer()->get('doctrine')->getEntityManager();
+
+        foreach($apiRests as $apiRest) {
+            $this->createRest($apiRest);
+        }
+
+        $em->flush();
 
         $output->writeln('complete');
     }
 
+    private function createRest($apiRest)
+    {
+        $rest = new Rest();
+        $rest
+            ->setGnaviId($apiRest->id)
+            ->setName($apiRest->name)
+            ->setNameKana($apiRest->name_kana)
+            ->setTel($apiRest->tel)
+            ->setAddress($apiRest->address)
+            ->setLatlng(new Point($apiRest->latitude, $apiRest->longitude))
+            ;
+
+        $em = $this->getContainer()->get('doctrine')->getEntityManager();
+        $em->persist($rest);
+   }
 }

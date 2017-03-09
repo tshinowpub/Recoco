@@ -19,3 +19,4 @@ composer.phar
 web/node_modules
 bundle.js
 web/js
+/infrastructure/mysql/*

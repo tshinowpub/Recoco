@@ -56,6 +56,11 @@ doctrine:
         #   2. Uncomment database_path in parameters.yml.dist
         #   3. Uncomment next line:
         #path:     "%database_path%"
+        types:
+            geometry:   CrEOF\Spatial\DBAL\Types\GeometryType
+            point:      CrEOF\Spatial\DBAL\Types\Geometry\PointType
+            polygon:    CrEOF\Spatial\DBAL\Types\Geometry\PolygonType
+            linestring: CrEOF\Spatial\DBAL\Types\Geometry\LineStringType
 
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
@@ -67,6 +72,17 @@ doctrine:
                 dir: %kernel.root_dir%/../src/Recoco/Domain/Gnavi/Entity
                 prefix: Recoco\Domain\Gnavi\Entity
                 is_bundle: false
+        dql:
+            numeric_functions:
+                st_contains:     CrEOF\Spatial\ORM\Query\AST\Functions\MySql\STContains
+                contains:        CrEOF\Spatial\ORM\Query\AST\Functions\MySql\Contains
+                st_area:         CrEOF\Spatial\ORM\Query\AST\Functions\MySql\Area
+                st_geomfromtext: CrEOF\Spatial\ORM\Query\AST\Functions\MySql\GeomFromText
+                st_intersects:   CrEOF\Spatial\ORM\Query\AST\Functions\MySql\STIntersects
+                st_distance:     CrEOF\Spatial\ORM\Query\AST\Functions\MySql\STDistance
+                st_buffer:       CrEOF\Spatial\ORM\Query\AST\Functions\MySql\STBuffer
+                point:           CrEOF\Spatial\ORM\Query\AST\Functions\MySql\Point
+                glength:         CrEOF\Spatial\ORM\Query\AST\Functions\MySql\GLength
 
 # Swiftmailer Configuration
 swiftmailer:
