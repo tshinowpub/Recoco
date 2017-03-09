@@ -19,7 +19,7 @@ module.exports = {
       },
     ],
   },
-  devtool: 'cheap-eval-source-map',
+  devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.jsx'],
   },
