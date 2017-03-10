@@ -11,6 +11,7 @@ use CrEOF\Spatial\PHP\Types\Geometry\Point;
  * @ORM\Table(name="Rest", indexes={
  * @ORM\Index(columns={"latlng"}, flags={"SPATIAL"})
  * })
+ * @ORM\Entity(repositoryClass="Recoco\Infrastructure\Repository\RestRepository")
  */
 class Rest {
     /**
