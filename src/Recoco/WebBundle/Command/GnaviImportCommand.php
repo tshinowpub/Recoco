@@ -52,7 +52,11 @@ class GnaviImportCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getEntityManager();
 
         foreach($apiRests as $apiRest) {
-            $this->createRest($apiRest);
+
+            $rest = $this->createRest($apiRest);
+
+            $SaveRest = $this->getContainer()->get('recoco.domain.gnavi.usecase.save_rest');
+            $SaveRest->saveRest($rest);
         }
 
         $em->flush();
@@ -72,7 +76,6 @@ class GnaviImportCommand extends ContainerAwareCommand
             ->setLatlng(new Point($apiRest->latitude, $apiRest->longitude))
             ;
 
-        $em = $this->getContainer()->get('doctrine')->getEntityManager();
-        $em->persist($rest);
+        return $rest;
    }
 }

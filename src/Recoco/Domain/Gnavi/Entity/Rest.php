@@ -8,7 +8,7 @@ use CrEOF\Spatial\PHP\Types\Geometry\Point;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Rest", indexes={
+ * @ORM\Table(name="rest", indexes={
  * @ORM\Index(columns={"latlng"}, flags={"SPATIAL"})
  * })
  * @ORM\Entity(repositoryClass="Recoco\Infrastructure\Repository\RestRepository")
