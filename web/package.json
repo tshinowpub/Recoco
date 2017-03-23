@@ -1,10 +1,15 @@
 {
-  "name": "FrontendDevelopmentStarter",
+  "name": "Recoco",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/Kazooooo/FrontendDevelopmentStarter.git",
+  "repository": "https://github.com/tshinowpub/Recoco.git",
   "author": "KazumasaToda <cest93@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "watch": "webpack --watch",
+    "build": "webpack",
+    "deploy": "webpack -p"
+  },
   "dependencies": {
     "babel": "^6.23.0",
     "babel-core": "^6.23.1",
