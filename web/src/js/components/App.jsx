@@ -28,18 +28,24 @@ class App extends Component {
     const markers = this.props.shops.map((shop) => {
       return {
         name: shop.name,
-        label: shop.name,
+        title: shop.name,
         content: shop.name,
+        showInfo: false,
+        icon: {
+          url: 'http://icons.iconarchive.com/icons/graphicloads/food-drink/256/catering-icon.png',
+          scaledSize: new google.maps.Size(20, 20),
+        },
         position: {
           lat: parseFloat(shop.latitude),
           lng: parseFloat(shop.longitude),
         },
       };
     });
-    markers.push(
+    markers.unshift(
       {
         name: 'current',
-        label: '現在地',
+        title: '現在地',
+        showInfo: true,
         position: {
           lat: latitude,
           lng: longitude,

@@ -1,14 +1,43 @@
 import React, { Component } from 'react';
-import { GoogleMapLoader, GoogleMap, Marker } from 'react-google-maps';
+import { GoogleMapLoader, GoogleMap, Marker, InfoWindow } from 'react-google-maps';
 
+// https://tomchentw.github.io/react-google-maps/basics/pop-up-window
 class Map extends Component {
+  componentWillMount() {
+    if (!this.state) {
+      this.setState(this.props);
+    }
+  }
+
+  handleMarkerClick(targetMarker) {
+    this.setState({
+      markers: this.state.markers.map((marker) => {
+        console.log(marker, targetMarker);
+        if (marker === targetMarker) {
+          return {
+            ...marker,
+            showInfo: true,
+          };
+        }
+        return marker;
+      }),
+    });
+  }
+
   renderMarker(markers) {
     return markers.map((marker) => {
       return (
         <Marker
           key={marker.name}
           {...marker}
-        />
+          onClick={this.handleMarkerClick}
+        >
+          {marker.showInfo && (
+            <InfoWindow>
+              <div>{marker.name}</div>
+            </InfoWindow>
+          )}
+        </Marker>
       );
     });
   }
@@ -30,7 +59,7 @@ class Map extends Component {
             defaultZoom={18}
             defaultCenter={{ lat: this.props.latitude, lng: this.props.longitude }}
           >
-            {this.renderMarker(this.props.markers)}
+            {this.renderMarker(this.state.markers)}
           </GoogleMap>
         }
       />
