@@ -25,27 +25,26 @@ class App extends Component {
 
     const { latitude, longitude } = this.props.geolocation.coords;
 
-    const markers = this.props.shops.map((shop) => {
-      return {
-        name: shop.name,
-        title: shop.name,
-        content: shop.name,
-        showInfo: false,
-        icon: {
-          url: 'http://icons.iconarchive.com/icons/graphicloads/food-drink/256/catering-icon.png',
-          scaledSize: new google.maps.Size(20, 20),
-        },
-        position: {
-          lat: parseFloat(shop.latitude),
-          lng: parseFloat(shop.longitude),
-        },
-      };
-    });
+    const markers = this.props.shops.map(shop => ({
+      detail: shop,
+      name: shop.name,
+      title: shop.name,
+      content: shop.name,
+      showInfo: false,
+      icon: {
+        url: 'http://icons.iconarchive.com/icons/graphicloads/food-drink/256/catering-icon.png',
+        scaledSize: new google.maps.Size(20, 20),
+      },
+      position: {
+        lat: parseFloat(shop.latitude),
+        lng: parseFloat(shop.longitude),
+      },
+    }));
     markers.unshift(
       {
-        name: 'current',
+        name: '現在地',
         title: '現在地',
-        showInfo: true,
+        showInfo: false,
         position: {
           lat: latitude,
           lng: longitude,
@@ -66,12 +65,10 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    geolocation: state.geolocation,
-    shops: state.shops,
-  };
-};
+const mapStateToProps = state => ({
+  geolocation: state.geolocation,
+  shops: state.shops,
+});
 
 
 App.propTypes = {

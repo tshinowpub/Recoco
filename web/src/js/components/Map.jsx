@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { GoogleMapLoader, GoogleMap, Marker, InfoWindow } from 'react-google-maps';
 
-// https://tomchentw.github.io/react-google-maps/basics/pop-up-window
 class Map extends Component {
   componentWillMount() {
+    console.log(this.props.markers[10]);
     if (!this.state) {
       this.setState(this.props);
     }
@@ -11,8 +11,7 @@ class Map extends Component {
 
   handleMarkerClick(targetMarker) {
     this.setState({
-      markers: this.state.markers.map((marker) => {
-        console.log(marker, targetMarker);
+      markers: this.props.markers.map((marker) => {
         if (marker === targetMarker) {
           return {
             ...marker,
@@ -25,46 +24,48 @@ class Map extends Component {
   }
 
   renderMarker(markers) {
-    return markers.map((marker) => {
-      return (
-        <Marker
-          key={marker.name}
-          {...marker}
-          onClick={this.handleMarkerClick}
-        >
-          {marker.showInfo && (
-            <InfoWindow>
-              <div>{marker.name}</div>
-            </InfoWindow>
-          )}
-        </Marker>
-      );
-    });
+    return markers.map(marker => (
+      <Marker
+        key={marker.name}
+        {...marker}
+        onClick={() => this.handleMarkerClick(marker)}
+      >
+        {marker.showInfo && (
+          <InfoWindow>
+            <div>
+              <p>{marker.name}</p>
+              {marker.detail && <p>{marker.detail.address}</p>}
+              {marker.detail && <p>{marker.detail.tel}</p>}
+            </div>
+          </InfoWindow>
+        )}
+      </Marker>
+    ));
   }
 
   render() {
     return (
       <GoogleMapLoader
         containerElement={
-          <div
-            {...this.props.containerElementProps}
-            style={{
-              height: '300px'
-            }}
-          />
+          <div style={{ height: '300px' }} />
         }
         googleMapElement={
           <GoogleMap
-            ref={(map) => console.log(map)}
             defaultZoom={18}
             defaultCenter={{ lat: this.props.latitude, lng: this.props.longitude }}
           >
-            {this.renderMarker(this.state.markers)}
+            {this.renderMarker(this.state.markers || this.props.markers)}
           </GoogleMap>
         }
       />
     );
   }
 }
+
+Map.propTypes = {
+  latitude: React.PropTypes.number.isRequired,
+  longitude: React.PropTypes.number.isRequired,
+  markers: React.PropTypes.arrayOf(React.PropTypes.object.isRequired).isRequired,
+};
 
 export default Map;
