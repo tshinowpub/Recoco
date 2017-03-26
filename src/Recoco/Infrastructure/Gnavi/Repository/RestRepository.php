@@ -5,29 +5,30 @@ namespace Recoco\Infrastructure\Gnavi\Repository;
 use Recoco\Domain\Gnavi\Repository\RestRepositoryInterface;
 use Recoco\Domain\Gnavi\Entity\Rest;
 
-use Doctrine\ORM\EntityManager;
+use CrEOF\Spatial\PHP\Types\Geometry\Point;
+
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Criteria;
 
 class RestRepository extends EntityRepository implements RestRepositoryInterface
 {
 
-    private $entityManager;
-
-    public function __construct(EntityManager $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
     public function saveRest(Rest $rest)
     {
-        $this->entityManager->persist($rest);
+        $this->getEntityManager()->persist($rest);
     }
 
-    public function findByCriteria(array $criteria, array $orderBy = null)
+    public function getNearRests(Point $point, int $distance): array
     {
-        $Rests = $this->findAll();
+        $rests = [];
 
-        return $Rests;
+        $rests = $this
+            ->createQueryBuilder('r')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+
+        return $rests;
     }
 }
