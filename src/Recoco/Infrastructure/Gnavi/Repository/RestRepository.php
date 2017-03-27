@@ -25,6 +25,10 @@ class RestRepository extends EntityRepository implements RestRepositoryInterface
 
         $rests = $this
             ->createQueryBuilder('r')
+            ->addSelect('ST_Distance(POINT(:lat, :lng), r.latlng) as HIDDEN distance')
+            ->setParameter('lat', $point->getLatitude())
+            ->setParameter('lng', $point->getLongitude())
+            ->orderBy('distance', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult();
