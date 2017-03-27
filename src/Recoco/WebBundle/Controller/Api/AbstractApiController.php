@@ -21,15 +21,27 @@ abstract class AbstractApiController extends Controller
         ]);
 
         $form->handleRequest($request);
-        if ($form->isValid()) {
+
+        $datas = [
+            'latitude' => $request->query->get('latitude'),
+            'longitude' => $request->query->get('longitude'),
+            'distance' => $request->query->get('distance'),
+        ];
+
+        $form->submit($datas);
+        if (!$form->isValid()) {
+            throw new \InvalidArgumentException("Form is not valid.");
         }
 
         $rests = [];
 
-        $point = new Point(34.6952161, 135.5015264);
+        $point = new Point(
+            $form["latitude"]->getData(),
+            $form["longitude"]->getData()
+        );
 
         $getNearRests = $this->get('recoco.domain.gnavi.usecase.get_near_rests');
-        $rests = $getNearRests->getNearRests($point, 1000);
+        $rests = $getNearRests->getNearRests($point, $form["distance"]->getData());
 
         $serializer = $this->get('recoco.infrastructure.api.serializer.json')->getSerializer();
         $responseRests = [];
