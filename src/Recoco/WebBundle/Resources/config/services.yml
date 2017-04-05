@@ -2,9 +2,6 @@ services:
 #    recoco_web.example:
 #        class: Recoco\WebBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
-    recoco.domain.gnavi.service.gnavi_api.service:
-        class: Recoco\Domain\Gnavi\Service\GnaviApiService
-        arguments: []
 
     recoco.domain.gnavi.usecase.save_rest:
         class: Recoco\Domain\Gnavi\Usecase\SaveRest
