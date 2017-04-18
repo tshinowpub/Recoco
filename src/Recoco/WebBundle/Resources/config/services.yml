@@ -2,14 +2,35 @@ services:
 #    recoco_web.example:
 #        class: Recoco\WebBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
-    recoco.domain.gnavi.service.gnavi_api.service:
-        class: Recoco\Domain\Gnavi\Service\GnaviApiService
-        arguments: []
 
     recoco.domain.gnavi.usecase.save_rest:
         class: Recoco\Domain\Gnavi\Usecase\SaveRest
         arguments: ["@recoco.infrastructure.gnavi.repository.rest"]
 
+    recoco.domain.gnavi.usecase.get_near_rests:
+        class: Recoco\Domain\Gnavi\Usecase\GetNearRests
+        arguments: ["@recoco.infrastructure.gnavi.repository.rest"]
+
     recoco.infrastructure.gnavi.repository.rest:
         class: Recoco\Infrastructure\Gnavi\Repository\RestRepository
-        arguments: ["@doctrine.orm.entity_manager"]
+        factory: ["@doctrine.orm.default_entity_manager", getRepository]
+        arguments:
+            - Recoco\Domain\Gnavi\Entity\Rest
+
+    recoco.infrastructure.api.serializer.json:
+        class: Recoco\Infrastructure\Api\Serializer\JsonSerializer
+        arguments: ["@recoco.infrastructure.api.serializer.builder"]
+
+    recoco.infrastructure.api.serializer.builder:
+        class: Recoco\Infrastructure\Api\Serializer\SerializerBuilder
+
+    recoco.domain.gnavi.usecase.get_rests_by_gnavi:
+        class: Recoco\Domain\Gnavi\Usecase\GetRestsByGnavi
+        arguments: ["@recoco.infrastructure.gnavi.repository.rest_by_gnavi"]
+
+    recoco.domain.gnavi.usecase.get_count_page_rests_by_gnavi:
+        class: Recoco\Domain\Gnavi\Usecase\GetCountPageRestsByGnavi
+        arguments: ["@recoco.infrastructure.gnavi.repository.rest_by_gnavi"]
+
+    recoco.infrastructure.gnavi.repository.rest_by_gnavi:
+        class: Recoco\Infrastructure\Gnavi\Repository\Api\RestByGnaviRepository

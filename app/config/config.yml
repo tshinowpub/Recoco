@@ -72,6 +72,8 @@ doctrine:
                 dir: %kernel.root_dir%/../src/Recoco/Domain/Gnavi/Entity
                 prefix: Recoco\Domain\Gnavi\Entity
                 is_bundle: false
+                alias: Gnavi
+        
         dql:
             numeric_functions:
                 st_contains:     CrEOF\Spatial\ORM\Query\AST\Functions\MySql\STContains
