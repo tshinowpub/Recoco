@@ -4,7 +4,10 @@ namespace Recoco\WebBundle\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
 use Recoco\Domain\Gnavi\Criteria\RestSearchByGnavi;
@@ -14,15 +17,25 @@ use CrEOF\Spatial\PHP\Types\Geometry\Point;
 
 class GnaviImportCommand extends ContainerAwareCommand
 {
+    private $config;
+
     const BASE_URL = 'https://api.gnavi.co.jp/RestSearchAPI/20150630/';
 
     protected function configure()
     {
-        $this->setName('gnavi:import');
+        $this
+            ->setName('gnavi:import')
+            ->setDescription('Import rests form Gnavi.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->setConfig();
+        if(!$this->validateConfig()) {
+            $output->writeln('Please correct settings to gnavi_import.yml');
+            return ;
+        }
+
         $rests = [];
 
         $totalPage = $this->getCountPageRestsByGnavi();
@@ -67,10 +80,10 @@ class GnaviImportCommand extends ContainerAwareCommand
         $restSearchByGnavi
             ->setInputCoordinatesMode(1)
             ->setCoordinatesMode(1)
-            ->setLatitude(34.6952161)
-            ->setLongitude(135.5015264)
-            ->setRange(5)
-            ->setKeyId('6f78403ab1320b9db172ebac0d607e0f')
+            ->setLatitude($this->config['latitude'])
+            ->setLongitude($this->config['longitude'])
+            ->setRange($this->config['range'])
+            ->setKeyId($this->config['keyId'])
             ->setFormat('json')
             ;
 
@@ -95,4 +108,41 @@ class GnaviImportCommand extends ContainerAwareCommand
 
         return $rest;
    }
+
+   private function setConfig()
+   {
+       $path = __DIR__ . '/../Resources/config/gnavi_import.yml';
+
+       try {
+           $config = Yaml::parse(file_get_contents($path));
+       } catch (ParseException $e) {
+           printf("Unable to parse the YAML string: %s", $e->getMessage());
+       }
+
+       $this->config = $config;
+   }
+
+   private function validateConfig()
+   {
+       $validate = true;
+
+       if(!isset($this->config['latitude'])) {
+           $validate = false;
+       }
+
+       if(!isset($this->config['longitude'])) {
+           $validate = false;
+       }
+
+       if(!isset($this->config['range'])) {
+           $validate = false;
+       }
+
+       if(!isset($this->config['keyId'])) {
+           $validate = false;
+       }
+
+       return $validate;
+   }
+
 }
