@@ -7,11 +7,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 
+use Recoco\Domain\Gnavi\Criteria\RestSearchByGnavi;
 use Recoco\Domain\Gnavi\Entity\Rest;
 
 use CrEOF\Spatial\PHP\Types\Geometry\Point;
-
-use GuzzleHttp\Client;
 
 class GnaviImportCommand extends ContainerAwareCommand
 {
@@ -24,37 +23,25 @@ class GnaviImportCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $client = new Client();
-        $response = $client->request('GET', self::BASE_URL, [
-            'verify' => false,
-            'query' => [
-                'input_coordinates_mode' => 1,
-                'coordinates_mode' => 1,
-                'latitude' => 34.6952161,
-                'longitude' => 135.5015264,
-                'range' => 3,
-                'keyid' => '6f78403ab1320b9db172ebac0d607e0f',
-                'format' => 'json',
-            ]
-        ]);
+        $rests = [];
 
-        $apiRests = [];
-        if($response->getStatusCode() == '200') {
+        $totalPage = $this->getCountPageRestsByGnavi();
+        $getRestsByGnavi = $this->getContainer()->get('recoco.domain.gnavi.usecase.get_rests_by_gnavi');
+        for($i = 1; $i <= 1; $i++) {
 
-            $json = $response->getBody();
+            $criteria = $this->getCriteria($i);
 
-            $apiData = json_decode($json);
-            if(!is_null($apiData)) {
-                $apiRests = $apiData->rest;
+            $responseRests = $getRestsByGnavi->getRestsByGnavi($criteria);
+            foreach($responseRests as $responseRest) {
+                $tempRest = $this->createRest($responseRest);
+                $rests[] = $tempRest;
             }
+
         }
 
         $em = $this->getContainer()->get('doctrine')->getEntityManager();
 
-        foreach($apiRests as $apiRest) {
-
-            $rest = $this->createRest($apiRest);
-
+        foreach($rests as $rest) {
             $SaveRest = $this->getContainer()->get('recoco.domain.gnavi.usecase.save_rest');
             $SaveRest->saveRest($rest);
         }
@@ -62,6 +49,36 @@ class GnaviImportCommand extends ContainerAwareCommand
         $em->flush();
 
         $output->writeln('complete');
+    }
+
+    private function getCountPageRestsByGnavi()
+    {
+        $criteria = $this->getCriteria();
+
+        $getCountPageRestsByGnavi = $this->getContainer()->get('recoco.domain.gnavi.usecase.get_count_page_rests_by_gnavi');
+
+        return $getCountPageRestsByGnavi->getCountPageRestsByGnavi($criteria);
+    }
+
+    private function getCriteria($offset = null)
+    {
+        $restSearchByGnavi = new RestSearchByGnavi();
+
+        $restSearchByGnavi
+            ->setInputCoordinatesMode(1)
+            ->setCoordinatesMode(1)
+            ->setLatitude(34.6952161)
+            ->setLongitude(135.5015264)
+            ->setRange(5)
+            ->setKeyId('6f78403ab1320b9db172ebac0d607e0f')
+            ->setFormat('json')
+            ;
+
+        if(!is_null($offset)) {
+            $restSearchByGnavi->setOffset($offset);
+        }
+
+        return $restSearchByGnavi;
     }
 
     private function createRest($apiRest)

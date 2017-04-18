@@ -23,3 +23,14 @@ services:
 
     recoco.infrastructure.api.serializer.builder:
         class: Recoco\Infrastructure\Api\Serializer\SerializerBuilder
+
+    recoco.domain.gnavi.usecase.get_rests_by_gnavi:
+        class: Recoco\Domain\Gnavi\Usecase\GetRestsByGnavi
+        arguments: ["@recoco.infrastructure.gnavi.repository.rest_by_gnavi"]
+
+    recoco.domain.gnavi.usecase.get_count_page_rests_by_gnavi:
+        class: Recoco\Domain\Gnavi\Usecase\GetCountPageRestsByGnavi
+        arguments: ["@recoco.infrastructure.gnavi.repository.rest_by_gnavi"]
+
+    recoco.infrastructure.gnavi.repository.rest_by_gnavi:
+        class: Recoco\Infrastructure\Gnavi\Repository\Api\RestByGnaviRepository
